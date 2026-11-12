@@ -24,8 +24,44 @@ def square_images(dir_path):
             cropped_img = img.crop(box)
             filename_split = img.filename.split("/")
             name = filename_split[-1]
-            cropped_img.save(f"{output_dir_path}/{name}")
+            cropped_img.save(f"{output_dir}/{name}")
 
-output_dir_path = Path("./square_images")
-delete_files(output_dir_path)
-square_images("./DIV2K_valid_HR/*.png")
+
+def get_input_dir():
+    while True:
+        try:
+            input_dir_path = Path(input("Enter in the file path for your folder of images: "))
+            has_files = any(item.is_file() for item in input_dir_path.iterdir())
+            if has_files:
+                return input_dir_path
+            else:
+                print("\033[31m Folder does not have any files in it \033[0m")
+                print("\033[31m Please add images \033[0m")
+        except FileNotFoundError:
+            print("\033[31m Folder Not Found \033[0m")
+            print("\033[31m Make sure path is typed correctly and folder exists \033[0m")
+
+
+def get_output_dir():
+    while True:
+        try:
+            print("(Default is 'square_images')")
+            output_dir_path = input("Enter a folder for the square images to go: ")
+            if output_dir_path == "":
+                output_dir_path = Path("./square_images")
+            else:
+                output_dir_path = Path(output_dir_path)
+            output_dir_path.mkdir(parents=True, exist_ok=True)
+        except FileExistsError:
+            print("\033[31m A FILE exists with that name, Delete that file or make a new name \033[0m")
+        else:
+            return output_dir_path
+
+
+if __name__ == '__main__':
+    # output_dir = Path("./square_images")
+    output_dir = get_output_dir()
+    input_dir = get_input_dir()
+
+    delete_files(output_dir)
+    square_images(input_dir)
