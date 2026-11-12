@@ -1,9 +1,11 @@
+import json
+
 from PIL import Image, ImageDraw
 import glob
 import math
 import random
 
-TILE_SIZE = 10
+TILE_SIZE = 25
 IMAGE_SIZE = 100
 
 
@@ -84,7 +86,7 @@ def show_pixelated_image(pixel_list):
 
 def get_color_to_images_dict(dir_path):
     color_to_images_dict = {}
-    for file_path in glob.glob(dir_path):
+    for file_path in glob.glob(f"{dir_path}/*"):
         with Image.open(file_path) as ref_img:
             ref_img = ref_img.convert("RGB")
             ref_img_size = ref_img.width
@@ -101,6 +103,12 @@ def get_color_to_images_dict(dir_path):
     return color_to_images_dict
 
 
+def get_json_to_dict():
+    with open("colors.json", "r", encoding="utf-8") as file:
+        data = json.load(file)
+    return data
+
+
 def get_closest_color_path(target_color, color_key):
     best_color_paths = ""
     best_distance = None
@@ -108,6 +116,12 @@ def get_closest_color_path(target_color, color_key):
     target_red, target_green, target_blue = target_color
 
     for color, paths in color_key.items():
+        if type(color) == type(""):
+            # Color is given as a string, "(1, 2, 3)" rather than a tuple
+            # So it strips the "()" separates each number be ", " and makes it back into a tuple
+            color = (int(x) for x in str(color.strip("()")).split(", "))
+            # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
         key_red, key_green, key_blue = color
         distance = math.sqrt(
             (target_red - key_red) ** 2 + (target_green - key_green) ** 2 + (target_blue - key_blue) ** 2)
@@ -151,18 +165,19 @@ def create_photomosaic(file_matrix):
 
 
 if __name__ == '__main__':
-    with Image.open("ShinjiCream.png") as img:
+    with Image.open("Bruno.png") as img:
         img = resize_image_to_grid(img)
         img = img.convert("RGB")
 
         width, height = img.size
-        width_tiles = width / TILE_SIZE
-        height_tiles = height / TILE_SIZE
+        width_tiles = width // TILE_SIZE
+        height_tiles = height // TILE_SIZE
 
         pixels = get_pixel_matrix(img)
         average_pixels = get_mosaic_color_grid(pixels, width_tiles, height_tiles)
 
         # show_pixelated_image(average_pixels)
-        image_matrix = get_images_matrix(average_pixels, get_color_to_images_dict("./square_images"))
+        # image_matrix = get_images_matrix(average_pixels, get_color_to_images_dict("./square_images"))
+        image_matrix = get_images_matrix(average_pixels, get_json_to_dict())
 
         create_photomosaic(image_matrix)

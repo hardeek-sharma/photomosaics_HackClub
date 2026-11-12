@@ -124,6 +124,7 @@ if __name__ == '__main__':
     delete_files(output_dir)
 
     contains_subfolders = any(item.is_dir() for item in input_dir.iterdir())
+    print("Doing Stuff...")
     if contains_subfolders:
         square_images(f"{input_dir}/*/*")
     else:
