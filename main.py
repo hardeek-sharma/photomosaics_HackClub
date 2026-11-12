@@ -1,10 +1,9 @@
 from PIL import Image, ImageDraw
 import glob
-import os
 import math
 import random
 
-TILE_SIZE = 50
+TILE_SIZE = 10
 IMAGE_SIZE = 100
 
 
@@ -83,10 +82,9 @@ def show_pixelated_image(pixel_list):
     pixelated_image.show()
 
 
-def get_reference_color_library(directory_path):
-    color_to_images_map = {}
-    search_pattern = os.path.join(directory_path, "*.*")
-    for file_path in glob.glob(search_pattern):
+def get_color_to_images_dict(dir_path):
+    color_to_images_dict = {}
+    for file_path in glob.glob(dir_path):
         with Image.open(file_path) as ref_img:
             ref_img = ref_img.convert("RGB")
             ref_img_size = ref_img.width
@@ -97,29 +95,28 @@ def get_reference_color_library(directory_path):
             average_color = get_average_color(flat_pixels, ref_img_size)
             # print(average_color)
 
-            if average_color not in color_to_images_map:
-                color_to_images_map[average_color] = []
-            color_to_images_map[average_color].append(file_path)
-    return color_to_images_map
+            if average_color not in color_to_images_dict:
+                color_to_images_dict[average_color] = []
+            color_to_images_dict[average_color].append(file_path)
+    return color_to_images_dict
 
 
 def get_closest_color_path(target_color, color_key):
-    best_color_paths = None
+    best_color_paths = ""
     best_distance = None
 
     target_red, target_green, target_blue = target_color
 
     for color, paths in color_key.items():
         key_red, key_green, key_blue = color
-        distance = math.sqrt((target_red - key_red)**2 + (target_green - key_green)**2 + (target_blue - key_blue)**2)
+        distance = math.sqrt(
+            (target_red - key_red) ** 2 + (target_green - key_green) ** 2 + (target_blue - key_blue) ** 2)
 
         if best_distance is None or distance < best_distance:
             best_color_paths = paths
             best_distance = distance
 
-
     return random.choice(best_color_paths)
-
 
 
 def get_images_matrix(pixel_matrix, color_key):
@@ -149,23 +146,23 @@ def create_photomosaic(file_matrix):
                 y_offset = i * IMAGE_SIZE
 
                 canvas.paste(image, (x_offset, y_offset))
+    print(canvas_width, canvas_height)
     canvas.show()
 
 
-
 if __name__ == '__main__':
-    with Image.open("Bruno.png") as img:
+    with Image.open("ShinjiCream.png") as img:
         img = resize_image_to_grid(img)
         img = img.convert("RGB")
 
         width, height = img.size
-        width_tiles = width // TILE_SIZE
-        height_tiles = height // TILE_SIZE
+        width_tiles = width / TILE_SIZE
+        height_tiles = height / TILE_SIZE
 
         pixels = get_pixel_matrix(img)
         average_pixels = get_mosaic_color_grid(pixels, width_tiles, height_tiles)
 
         # show_pixelated_image(average_pixels)
-        image_matrix = get_images_matrix(average_pixels, get_reference_color_library("./square_images"))
+        image_matrix = get_images_matrix(average_pixels, get_color_to_images_dict("./square_images"))
 
         create_photomosaic(image_matrix)
