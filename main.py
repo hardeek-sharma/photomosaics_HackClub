@@ -1,7 +1,6 @@
 import json
 from pathlib import Path
 from PIL import Image, ImageDraw, UnidentifiedImageError
-import glob
 import math
 import random
 
@@ -152,7 +151,7 @@ def get_input_image():
         except FileNotFoundError:
             print("\033[31m File Not Found \033[0m")
             print("\033[31m Make sure path is typed correctly and file exists \033[0m")
-        except UnidentifiedImageError, IsADirectoryError:
+        except (UnidentifiedImageError, IsADirectoryError):
             print("\033[31m File Is Not An IMAGE FILE \033[0m")
             print("\033[31m Enter an IMAGE FILE \033[0m")
 
