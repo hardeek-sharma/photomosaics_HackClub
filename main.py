@@ -193,7 +193,6 @@ def get_tile_size():
 
 if __name__ == '__main__':
     img_file = get_input_image()
-
     with Image.open(img_file) as img:
         width, height = img.size
 
