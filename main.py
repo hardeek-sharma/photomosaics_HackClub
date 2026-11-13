@@ -1,12 +1,9 @@
 import json
-
-from PIL import Image, ImageDraw
+from pathlib import Path
+from PIL import Image, ImageDraw, UnidentifiedImageError
 import glob
 import math
 import random
-
-TILE_SIZE = 25
-IMAGE_SIZE = 100
 
 
 def resize_image_to_grid(image):
@@ -164,8 +161,62 @@ def create_photomosaic(file_matrix):
     canvas.show()
 
 
+def get_input_image():
+    while True:
+        try:
+            input_image = Path(input("Enter in the file path for an image to make a mosaic of: "))
+            with Image.open(input_image) as file:
+                file.verify()
+            return input_image
+        except FileNotFoundError:
+            print("\033[31m File Not Found \033[0m")
+            print("\033[31m Make sure path is typed correctly and file exists \033[0m")
+        except UnidentifiedImageError:
+            print("\033[31m File Is Not An IMAGE File \033[0m")
+            print("\033[31m Enter an IMAGE file \033[0m")
+
+
+def get_parse_size():
+    while True:
+        try:
+            print("  The square is the block that breaks up each image into tiles\n"
+                  "  so a size of 1 with convert each pixel of the image to an image\n"
+                  "  a size of make a 50x50 square and make every 2500 pixels into an image\n"
+                  "  basically lower number is high quality, high number is low quality.")
+            parse_size = input("Enter a size for the square (Default: 50): ")
+            if parse_size == "":
+                return 50
+            parse_size = int(parse_size)
+            if parse_size <= 0 or parse_size > width or parse_size > height:
+                print("\033[31m Square cannot be smaller than 0 or bigger than image \033[0m")
+            return parse_size
+        except ValueError:
+            print("\033[31m Enter a NUMBER \033[0m")
+
+
+def get_tile_size():
+    while True:
+        try:
+            print("  The tile size determines how big each image that makes up the photomosaic will be")
+            tile_size = input("Enter a size for the tiles (Default 50): ")
+            if tile_size == "":
+                return 50
+            tile_size = int(tile_size)
+            if tile_size <= 0:
+                print("\033[31m Tile cannot be 0 pixels \033[0m")
+            return tile_size
+        except ValueError:
+            print("\033[31m Enter a NUMBER \033[0m")
+
+
 if __name__ == '__main__':
-    with Image.open("Bruno.png") as img:
+    img_file = get_input_image()
+
+    TILE_SIZE = get_parse_size()
+    IMAGE_SIZE = get_tile_size()
+
+    with Image.open(img_file) as img:
+        width, height = img.size
         img = resize_image_to_grid(img)
         img = img.convert("RGB")
 
