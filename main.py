@@ -81,25 +81,6 @@ def show_pixelated_image(pixel_list):
     pixelated_image.show()
 
 
-def get_color_to_images_dict(dir_path):
-    color_to_images_dict = {}
-    for file_path in glob.glob(f"{dir_path}/*"):
-        with Image.open(file_path) as ref_img:
-            ref_img = ref_img.convert("RGB")
-            ref_img_size = ref_img.width
-
-            pixel_matrix = get_pixel_matrix(ref_img)
-            flat_pixels = [pixel for row in pixel_matrix for pixel in row]
-
-            average_color = get_average_color(flat_pixels, ref_img_size)
-            # print(average_color)
-
-            if average_color not in color_to_images_dict:
-                color_to_images_dict[average_color] = []
-            color_to_images_dict[average_color].append(file_path)
-    return color_to_images_dict
-
-
 def get_json_to_dict():
     with open("colors.json", "r", encoding="utf-8") as file:
         data = json.load(file)
@@ -177,33 +158,35 @@ def get_input_image():
 
 
 def get_parse_size():
+    print("  The square is the block that breaks up each image into tiles\n"
+          "  so a size of 1 with convert each pixel of the image to an image\n"
+          "  a size of make a 50x50 square and make every 2500 pixels into an image\n"
+          "  basically lower number is high quality, high number is low quality.")
     while True:
         try:
-            print("  The square is the block that breaks up each image into tiles\n"
-                  "  so a size of 1 with convert each pixel of the image to an image\n"
-                  "  a size of make a 50x50 square and make every 2500 pixels into an image\n"
-                  "  basically lower number is high quality, high number is low quality.")
             parse_size = input("Enter a size for the square (Default: 50): ")
             if parse_size == "":
                 return 50
             parse_size = int(parse_size)
             if parse_size <= 0 or parse_size > width or parse_size > height:
-                print("\033[31m Square cannot be smaller than 0 or bigger than image \033[0m")
+                print("\033[31m Square cannot be less than 1 or more than image width/height \033[0m")
+                continue
             return parse_size
         except ValueError:
             print("\033[31m Enter a NUMBER \033[0m")
 
 
 def get_tile_size():
+    print("  The tile size determines how big each image that makes up the photomosaic will be")
     while True:
         try:
-            print("  The tile size determines how big each image that makes up the photomosaic will be")
             tile_size = input("Enter a size for the tiles (Default 50): ")
             if tile_size == "":
                 return 50
             tile_size = int(tile_size)
             if tile_size <= 0:
                 print("\033[31m Tile cannot be 0 pixels \033[0m")
+                continue
             return tile_size
         except ValueError:
             print("\033[31m Enter a NUMBER \033[0m")
