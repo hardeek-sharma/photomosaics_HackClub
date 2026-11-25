@@ -8,7 +8,10 @@ average color is gotten and put into colors.json as cache for the main program.
 In the main program, it asks the user for an initial image to be made up of smaller images later on. It then   
 asks for the quality of the mosaic, how many pixels in the initial image an image tile with take up in the new  
 mosaic. After it asks for the tile size, how big each small image in the mosaic will be. Finally, it will make   
-the mosaic out of the little images and, depending on the quality the user chose, it will look like the initial image.   
+the mosaic out of the little images and, depending on the quality the user chose, it will look like the initial image.    
+(It also says the size of the image)
+
+<img src="https://imgur.com/xRQX9of.jpg" width="800" alt="">
 
 ## EXAMPLE
 Initial Image  
